@@ -1,0 +1,19 @@
+{
+  "name": "friendfinder",
+  "version": "1.0.0",
+  "description": "dating app for the internet",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jepidoptera/friendFinder.git"
+  },
+  "author": "Peter Allen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jepidoptera/friendFinder/issues"
+  },
+  "homepage": "https://github.com/jepidoptera/friendFinder#readme"
+}
