@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="errorRelay.js"></script>
+    <script src="saveinput.js"></script>
+</head>
+<body>
+    <form action="/register" method="post">
+        <h3>Welcome to the site!  Please fill out the following to get started: <br></h3>
+        username: <input type="text" class="form" name="username"><br>
+        password: <input type="password" name="password"><br>
+        confirm password: <input type="password" name="confirmPassword"><br>
+        email: <input type="text" class="form" name="email"><br>
+        location: <input type="text" class="form" name="location"><br>
+        gender: <select class="form" name="gender">
+            <option value="male">male</option>
+            <option value="female">female</option>
+            <option value="other">other</option>
+        </select><br>
+        age: <input type="number" class="form" name="age"><br>
+        <input type="submit">
+    </form>
+    <p id="errorMessage" style='color:red'></p>
+</body>
+</html>

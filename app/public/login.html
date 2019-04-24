@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="errorRelay.js"></script>
+    <script src="saveinput.js"></script>
+</head>
+<body>
+    <form action="/login" method="post">
+        <h3>Please enter your login credentials: <br></h3>
+        username: <input type="text" class="form" name="username"><br>
+        password: <input type="password" name="password"><br>
+        <input type="submit">
+    </form>
+    <p id="errorMessage" style='color:red'></p>
+</body>
+</html>

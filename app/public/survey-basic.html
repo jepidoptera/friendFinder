@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+</head>
+<script>
+    var questions = [
+        {
+            question: "How do you feel about thunderstorms?",
+            answers: ["Terrified", "They're pretty cool", "I am strangely turned on by them"]
+        },
+        {
+            question: "Do you like to travel?",
+            answers: ["Yes, I want to see the world", "Sometimes, but it's not a big priority", "I barely like to leave my house"]
+        },
+        {
+            question: "Would you ever go for a walk at night... in a cemetery?",
+            answers: ["No. Too spooky.", "Maybe, with the right company.", "Yes."]
+        },
+        {
+            question: "How messy is your car, if you have one?",
+            answers: ["Spotless", "Could be cleaner", "It's a dump", "I don't have one"]
+        },
+        // {
+        //     question: "Do you like to travel?",
+        //     answers: ["Yes, I want to see the world", "Sometimes, but it's not a big priority", "I barely like to leave my house"]
+        // },
+        // {
+        //     question: "Do you like to travel?",
+        //     answers: ["Yes, I want to see the world", "Sometimes, but it's not a big priority", "I barely like to leave my house"]
+        // },
+        // {
+        //     question: "Do you like to travel?",
+        //     answers: ["Yes, I want to see the world", "Sometimes, but it's not a big priority", "I barely like to leave my house"]
+        // },
+        // {
+        //     question: "Do you like to travel?",
+        //     answers: ["Yes, I want to see the world", "Sometimes, but it's not a big priority", "I barely like to leave my house"]
+        // },
+        // {
+        //     question: "Do you like to travel?",
+        //     answers: ["Yes, I want to see the world", "Sometimes, but it's not a big priority", "I barely like to leave my house"]
+        // },
+        // {
+        //     question: "Do you like to travel?",
+        //     answers: ["Yes, I want to see the world", "Sometimes, but it's not a big priority", "I barely like to leave my house"]
+        // },
+    ]
+    $(document).ready(() => {
+        for (i = 0; i < questions.length; i++) {
+            var question = $("<p>").text(questions[i].question);
+            var answers = questions[i].answers.map((answer) => {return $("<button>").text(answer)});
+            
+        }
+    })
+</script>
+<body>
+    <div id="questionFrame"></div>
+</body>
+</html>
