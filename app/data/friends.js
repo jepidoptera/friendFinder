@@ -14,6 +14,7 @@ class Friend {
 
 var firebase = require('firebase');
 var friends = {};
+var thisUser = {};
 
 module.exports = {
     init: () => {
@@ -44,24 +45,34 @@ module.exports = {
         firebase.database().ref(username + "/answersData").set(data);
     },
 
-    newUser: (userObject) => {
+    newUser: (newUser) => {
         // fail if this user already exists
-        if (friends[userObject.username]) {
+        if (friends[newUser.username]) {
             return "!user exists already.";
         }
-        else if (friends[userObject.password != friends[userObject].confirmPassword]) {
+        else if (newUser.password != newUser.confirmPassword) {
             return "!passwords do not match.";
         }
-        console.log(userObject.username);
-        firebase.database().ref(userObject.username).set(userObject);
+        else if (newUser.location.toLowerCase() != "minneapolis") {
+            return "!this service is currently only available in minneapolis.";
+        }
+        console.log(newUser.username);
+        // upload the new user to firebase
+        // which also automatically adds them to the local object container
+        firebase.database().ref(newUser.username).set(newUser).then(() => {
+            // after which we can officially log them in
+            this.login(newUser, newUser.password);
+        });
         return true;
     },
 
     login: (username, password) => {
-        if (!friends[username]) {
+        // find the user
+        thisUser = friends[username];
+        if (!thisUser) {
             return "!user " + username + " not found.";
         }
-        if (friends[username].password != password) {
+        else if (thisUser.password != password) {
             return "!password for user " + username + " is incorrect.";
         }
         // passed checks
@@ -71,9 +82,9 @@ module.exports = {
         return authToken;
     },
 
-    authorize: (username, authToken) => {
+    authorize: (authToken) => {
         // just check if the auth token matches
-        if (friends[username].authToken == authToken) return true;
+        if (thisUser.authToken == authToken) return true;
         return false;
     },
 };

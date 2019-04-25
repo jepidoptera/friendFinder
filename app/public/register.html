@@ -5,9 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <script src="errorRelay.js"></script>
+    <script src="msgRelay.js"></script>
     <script src="saveinput.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 </head>
+<script>
+    // msgRelay will pass its message here by auto-callback
+    messageHandler = (message) => {
+        // this service is only available in minneapolis.
+        if (message.toLocaleLowerCase().includes("minneapolis")) {
+            $("input[name=location]")
+                .val("minneapolis")
+                .css("background-color: aliceblue");
+            // change local storage so saveinput doesn't change it back
+            localStorage.setItem("location", "minneapolis")
+        }
+    }
+</script>
+<!-- <style>
+    .img {background-color: aliceblue}
+</style> -->
 <body>
     <form action="/api/register" method="post">
         <h3>Welcome to the site!  Please fill out the following to get started: <br></h3>

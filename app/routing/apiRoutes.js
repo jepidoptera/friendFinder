@@ -32,20 +32,25 @@ module.exports = function apiRoutes() {
 
     app.post("/api/register", function(req, res) {
         console.log("registering new user...");
-        var success = friends.newUser(req.body);
-        var message = "";
-        if (success[0] == "!") {
+        var message = friends.newUser(req.body);
+        if (message[0] == "!") {
             // fail message
-            message = success.slice(1);
-            success = false;
+            console.log(message);
+            message = message.slice(1);  // -"!"
+            // redirect to register page and try again
+            // the query parameter will be displayed as an error message
+            res.redirect("/register?message="+message);
+        }
+        else {
+            console.log("registered.")
+            res.redirect("/welcome");
         }
         console.log("success? " + success);
         // send to welcome page
-        if (success) res.redirect("/welcome");
+        if (success) ;
         else {
             // failed, show problem
             // alert (message);
-            res.redirect("/register?message="+message);
         }
     });
 
