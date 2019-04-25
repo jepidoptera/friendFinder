@@ -22,8 +22,8 @@
             answers: ["No. Too spooky.", "Maybe, with the right company.", "Yes."]
         },
         {
-            question: "How messy is your car, if you have one?",
-            answers: ["Spotless", "Could be cleaner", "It's a dump", "I don't have one"]
+            question: "How messy is your car, if you have one, or would it be, if you did?",
+            answers: ["Spotless", "Could be cleaner", "It's a dump"]
         },
         // {
         //     question: "Do you like to travel?",
@@ -51,11 +51,38 @@
         // },
     ]
     $(document).ready(() => {
+        var currentQuestion = -1;
+        var questionLabels = [];
+        var answerButtons = [];
         for (i = 0; i < questions.length; i++) {
-            var question = $("<p>").text(questions[i].question);
-            var answers = questions[i].answers.map((answer) => {return $("<button>").text(answer)});
-            
+            questionLabels.push($("<p>").text(questions[i].question));
+            answerButtons.push(questions[i].answers.map((answer, j) => {return $("<button>").text(answer).data('answer', j)}));
+            answerButtons[i].forEach(answer => {
+                answer.click(() => {
+                    // post that answer to the api
+                    $.post("/api/answer", {question: questions[i], answer: answer.data('answer')});
+                    // get the next question
+                    nextQuestion();
+                })
+            });
         }
+
+        function nextQuestion() {
+            currentQuestion += 1;
+            if (currentQuestion >= questionLabels.length) {
+                $.post("/api/match")
+            }
+            else {
+                $("#questionFrame")
+                .empty()
+                .append("hello")
+                .append(questionLabels[currentQuestion])
+                .append($("<br>"))
+                .append(answerButtons[currentQuestion]);
+            }
+        }
+
+        nextQuestion();
     })
 </script>
 <body>
