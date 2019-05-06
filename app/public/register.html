@@ -14,9 +14,9 @@
     messageHandler = (message) => {
         // this service is only available in minneapolis.
         if (message.toLocaleLowerCase().includes("minneapolis")) {
-            $("input[name=location]")
+            $("input[name='location']")
                 .val("minneapolis")
-                .css("background-color: aliceblue");
+                .css({"background-color": "blue", "color": "white"});
             // change local storage so saveinput doesn't change it back
             localStorage.setItem("location", "minneapolis")
         }

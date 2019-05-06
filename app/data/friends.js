@@ -21,7 +21,8 @@ module.exports = {
         // let's use firebase to track users and their answers
         // Initialize Firebase
         let config = {
-            apiKey: "AIzaSyA-IJ49_1bVdnZ01x8HI_7B2Xqoj5xavKE",
+            apikey: process.env.apikey,
+            // yes, I repurposed the click-counter app
             authDomain: "click-counter-15423.firebaseapp.com",
             databaseURL: "https://click-counter-15423.firebaseio.com",
             projectId: "click-counter-15423",
@@ -50,8 +51,14 @@ module.exports = {
         if (friends[newUser.username]) {
             return "!user exists already.";
         }
+        // passwords must match
         else if (newUser.password != newUser.confirmPassword) {
             return "!passwords do not match.";
+        }
+        // no re-using email addresses
+        else if (Object.keys(friends).reduce((truth, key) => 
+        {return truth || friends[key].email == newUser.email;}, false)) {
+            return "!email address is already registered.";
         }
         else if (newUser.location.toLowerCase() != "minneapolis") {
             return "!this service is currently only available in minneapolis.";

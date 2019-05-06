@@ -42,19 +42,14 @@ module.exports = function apiRoutes() {
             res.redirect("/register?message="+message);
         }
         else {
-            console.log("registered.")
+            // send to welcome page
+            console.log("registered.");
             res.redirect("/welcome");
         }
-        console.log("success? " + success);
-        // send to welcome page
-        if (success) ;
-        else {
-            // failed, show problem
-            // alert (message);
-        }
+        console.log("success? " + message);
     });
 
-    app.post("/api/match", function (req, res) {
+    app.get("/api/match", function (req, res) {
         res.send("You don't match with anyone.  You will always be lonely.");
     });
 };

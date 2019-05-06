@@ -70,12 +70,11 @@
         function nextQuestion() {
             currentQuestion += 1;
             if (currentQuestion >= questionLabels.length) {
-                $.post("/api/match")
+                location.href = "/api/match/";
             }
             else {
                 $("#questionFrame")
                 .empty()
-                .append("hello")
                 .append(questionLabels[currentQuestion])
                 .append($("<br>"))
                 .append(answerButtons[currentQuestion]);
