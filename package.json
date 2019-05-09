@@ -19,6 +19,7 @@
   "dependencies": {
     "express": "^4.16.4",
     "firebase": "^5.10.0",
+    "md5": "^2.2.1",
     "path": "^0.12.7"
   }
 }

@@ -9,6 +9,7 @@
     <script src="saveinput.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 </head>
+
 <script>
     // msgRelay will pass its message here by auto-callback
     messageHandler = (message) => {
@@ -20,17 +21,19 @@
             // change local storage so saveinput doesn't change it back
             localStorage.setItem("location", "minneapolis")
         }
+        // erase 'confirm password' field if there was any password-related problem
+        if (message.toLowerCase().includes("password")) {
+            localStorage.setItem("confirmPassword", "");
+        }
     }
 </script>
-<!-- <style>
-    .img {background-color: aliceblue}
-</style> -->
+
 <body>
     <form action="/api/register" method="post">
         <h3>Welcome to the site!  Please fill out the following to get started: <br></h3>
         username: <input type="text" class="form" name="username"><br>
-        password: <input type="password" name="password"><br>
-        confirm password: <input type="password" name="confirmPassword"><br>
+        password: <input type="password" class="form" name="password"><br>
+        confirm password: <input type="password" class="form" name="confirmPassword"><br>
         email: <input type="text" class="form" name="email"><br>
         location: <input type="text" class="form" name="location"><br>
         image url: <input type="text" class="form" name="imgURL"><br>
@@ -40,6 +43,9 @@
             <option value="other">other</option>
         </select><br>
         age: <input type="number" class="form" name="age"><br>
+        bio (a bit of information about yourself): 
+        <textarea class="form" name="bio" rows="80" cols="5"></textarea>
+        <button onclick="window.location.href='/'">cancel</button>
         <input type="submit">
     </form>
     <p id="errorMessage" style='color:red'></p>

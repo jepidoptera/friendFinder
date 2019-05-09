@@ -6,8 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src="md5.js"></script>
 </head>
 <script>
+    var url = new URL(window.location.href);
+    var username = url.searchParams.get("username");
+    var authtoken = url.searchParams.get("authtoken");
+    // user object for current logged-in user
+    var thisUser = {};
+
     var questions = [
         {
             question: "How do you feel about thunderstorms?",
@@ -25,22 +32,22 @@
             question: "How messy is your car, if you have one, or would it be, if you did?",
             answers: ["Spotless", "Could be cleaner", "It's a dump"]
         },
-        // {
-        //     question: "Do you like to travel?",
-        //     answers: ["Yes, I want to see the world", "Sometimes, but it's not a big priority", "I barely like to leave my house"]
-        // },
-        // {
-        //     question: "Do you like to travel?",
-        //     answers: ["Yes, I want to see the world", "Sometimes, but it's not a big priority", "I barely like to leave my house"]
-        // },
-        // {
-        //     question: "Do you like to travel?",
-        //     answers: ["Yes, I want to see the world", "Sometimes, but it's not a big priority", "I barely like to leave my house"]
-        // },
-        // {
-        //     question: "Do you like to travel?",
-        //     answers: ["Yes, I want to see the world", "Sometimes, but it's not a big priority", "I barely like to leave my house"]
-        // },
+        {
+            question: "Do you like cats, dogs, both, or neither?",
+            answers: ["Cats", "Dogs", "Both", "Neither"]
+        },
+        {
+            question: "Which are you most afraid of?",
+            answers: ["Heights", "Spiders", "Random murderers", "None of these"]
+        },
+        {
+            question: "Do you believe in ghosts?",
+            answers: ["No", "Yes, but only friendly ones", "Yes, and I'm scared", "Haven't decided"]
+        },
+        {
+            question: "Do you like parties?",
+            answers: ["Every night, baby", "When I'm in the mood", "Not really my thing", "I will intentionally contract a virulent disease to get out of it, if necessary"]
+        },
         // {
         //     question: "Do you like to travel?",
         //     answers: ["Yes, I want to see the world", "Sometimes, but it's not a big priority", "I barely like to leave my house"]
@@ -54,13 +61,30 @@
         var currentQuestion = -1;
         var questionLabels = [];
         var answerButtons = [];
+
+        // get info on current user
+        $.get("/api/user/" + username).then (res => {
+            thisUser = res;
+            // empty object for their answers, just so it doesn't throw an error
+            if (!thisUser.answersData) thisUser.answersData = {};
+            // start asking questions
+            nextQuestion();
+        });
+
         for (i = 0; i < questions.length; i++) {
             questionLabels.push($("<p>").text(questions[i].question));
             answerButtons.push(questions[i].answers.map((answer, j) => {return $("<button>").text(answer).data('answer', j)}));
+            // save this particular question into the closure
+            let n = i;
             answerButtons[i].forEach(answer => {
                 answer.click(() => {
                     // post that answer to the api
-                    $.post("/api/answer", {question: questions[i], answer: answer.data('answer')});
+                    $.post("/api/answer", {
+                        question: questions[n].question, 
+                        answer: answer.data('answer'), 
+                        username: username, 
+                        authtoken: authtoken
+                    });
                     // get the next question
                     nextQuestion();
                 })
@@ -69,19 +93,23 @@
 
         function nextQuestion() {
             currentQuestion += 1;
+            // redirect if we've finished all the questions
             if (currentQuestion >= questionLabels.length) {
-                location.href = "/api/match/";
+                location.href = "/api/match?username=" + username + "&authtoken=" + authtoken;
+            }
+            // skip this question if the user has already answered it
+            if (thisUser.answersData[md5(questions[currentQuestion].question)]) {
+                nextQuestion();
+                return;
             }
             else {
                 $("#questionFrame")
-                .empty()
-                .append(questionLabels[currentQuestion])
-                .append($("<br>"))
-                .append(answerButtons[currentQuestion]);
+                    .empty()
+                    .append(questionLabels[currentQuestion])
+                    .append($("<br>"))
+                    .append(answerButtons[currentQuestion]);
             }
         }
-
-        nextQuestion();
     })
 </script>
 <body>

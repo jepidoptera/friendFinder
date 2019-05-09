@@ -5,11 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 </head>
+
 <body>
-    <h1>Welcome!</h1>
-    <p>Since you're new to FriendFinder, we recommend filling out these surveys to find a match!</p>
-    <button onclick="window.location.href='/survey-basic'">basic info</button>
-    <button onclick="window.location.href='/survey-advanced'">intimate details</button>
+    <h1 id="title">Welcome!</h1>
+    <img id="profilepic" src="" alt="">
+    <p>If you're new to FriendFinder, we recommend filling out our survey to help you find a match!</p>
+    <button id="surveyButton">answer questions</button>
+    <button onclick="window.location.href='/friends'">browse other users</button>
 </body>
 </html>
+
+<script>
+    var url = new URL(window.location.href);
+    var username = url.searchParams.get("username");
+    var authtoken = url.searchParams.get("authtoken");
+    // personalize welcome message
+    $("#title").text("Welcome "+ username + "!");
+    // get profile pic from server
+    $.get("/api/"+ username + "/profilepic").then((imgurl) => {
+        $("#profilepic").attr("src", imgurl);
+    })
+    // set url locations for buttons
+    $("#surveyButton").on("click", () => {
+        window.location.href='/survey-basic?username=' + username + "&authtoken=" + authtoken;
+    })
+</script>

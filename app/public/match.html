@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+</head>
+<body>
+    <div id="navbar">
+        <button class="navbutton" id="msgButton">Message</button>
+        <button class="navbutton" id="moreButton">Next</button>
+        <button class="navbutton" id="homeButton">Home</button>
+    </div>
+    <h1 id="matchTitle"></h1>
+    <img id="profilepic" src="" alt="" width="300px" height="300px">
+    <div id="about">
+        <!-- info about this user -->
+    </div>
+</body>
+<script>
+        var url = new URL(window.location.href);
+        var username = url.searchParams.get("username");
+        var authtoken = url.searchParams.get("authtoken");
+        var match = url.searchParams.get("match");
+        // get the match percentage and then fill in the title
+        $.get("/api/matchstatic/?user1=" + username + "&user2=" + match).then((res) => {
+            console.log(res);
+            $("#matchTitle").text(match + ": " + res);
+        });
+        // request more information about the matched user
+        $.get("/api/user/" + match).then((res) => {
+            // should come back with detailed info about this match
+            match = res;
+            // show profile pic, if available
+            $("#profilepic").attr("src", match.imgURL);
+            // show info
+            $("#about").append([
+                $("<p>").text("Name: " + match.username),
+                $("<p>").text("Age: " + match.age),
+                $("<p>").text("Gender: " + match.gender),
+                $("<p>").text("Location: " + match.location),
+                $("<p>").text("Bio: " + match.bio),
+            ]);
+        });
+        // make the buttons work
+        $("#homeButton").on('click', () => {
+            window.location.href = "/welcome" +
+            "?username=" + username +
+            "&authtoken=" + authtoken;
+        });
+        $("#moreButton").on('click', () => {
+            window.location.href = "/browse" +
+            "?username=" + username +
+            "&authtoken=" + authtoken;
+        });
+        $("#msgButton").on('click', () => {
+            window.location.href = "/message" + 
+            "?username=" + username + 
+            "&authtoken=" + authtoken + 
+            "&match=" + match;
+        });
+</script>
+</html>
+

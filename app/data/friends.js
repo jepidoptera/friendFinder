@@ -1,4 +1,5 @@
 // jshint esversion: 6
+var md5 = require('md5');
 
 class Friend {
     constructor(username, password, email, location, gender, age, answersData) {
@@ -27,9 +28,10 @@ module.exports = {
             databaseURL: "https://click-counter-15423.firebaseio.com",
             projectId: "click-counter-15423",
             storageBucket: "click-counter-15423.appspot.com",
-            messagingSenderId: "905946912811"
+            messagingSenderId: "905946912811",
+            appId: "1:905946912811:web:8f9f5d823d251630"
         };
-
+        // Initialize Firebase
         firebase.initializeApp(config);
         var dataRef = firebase.database().ref();
         
@@ -39,11 +41,20 @@ module.exports = {
             // add all the data about this person
             friends[user.username] = user;
             console.log("found user " + user.username);
+            // add tracking for this user
+            firebase.database().ref(user.username).on('value', (snap) => {
+                var user = snap.val();
+                // update value
+                friends[user.username] = user;
+            });
         });        
     },
 
-    uploadSurveyData: (username, data) => {
-        firebase.database().ref(username + "/answersData").set(data);
+    uploadSurveyData: (username, authtoken, question, answer) => {
+        if (authorize(username, authtoken)) {
+            firebase.database().ref(username + "/answersData/" + question).set(answer);
+        }
+
     },
 
     newUser: (newUser) => {
@@ -64,11 +75,16 @@ module.exports = {
             return "!this service is currently only available in minneapolis.";
         }
         console.log(newUser.username);
+        // hash the password
+        var password = newUser.password;
+        newUser.password = md5(password);
+        // scrub the "confirm password" (which would expose the password in plaintext)
+        newUser.confirmPassword = null;
         // upload the new user to firebase
         // which also automatically adds them to the local object container
         firebase.database().ref(newUser.username).set(newUser).then(() => {
             // after which we can officially log them in
-            this.login(newUser, newUser.password);
+            this.login(newUser, password);
         });
         return true;
     },
@@ -79,21 +95,46 @@ module.exports = {
         if (!thisUser) {
             return "!user " + username + " not found.";
         }
-        else if (thisUser.password != password) {
+        else if (thisUser.password != md5(password)) {
             return "!password for user " + username + " is incorrect.";
         }
         // passed checks
         // assign an auth token
-        var authToken = randomHexNumber(8);
-        firebase.database().ref(username + "/authToken").set(authToken);
-        return authToken;
+        thisUser.authtoken = randomHexNumber(8);
+        firebase.database().ref(username + "/authtoken").set(thisUser.authtoken);
+        return thisUser.authtoken;
     },
 
-    authorize: (authToken) => {
-        // just check if the auth token matches
-        if (thisUser.authToken == authToken) return true;
-        return false;
+    getMatches(username, authtoken) {
+        // make sure they're properly logged in
+        if (!authorize(username, authtoken)) {
+            return "!error: auth token invalid.";
+        }
+        //
+        var sortedList = [];
+        Object.keys(friends).forEach((key, i) => {
+            var friend = friends[key];
+            if (friend.username != username) {
+                // calculate a match percentage for each possible "friend"
+                sortedList[i] = friend;
+                sortedList[i].matchPercent = getMatchPercent(friend.username, username);
+            }
+        });
+
+        // upload these to firebase for later
+        firebase.database.ref(username + "/matches").set(sortedList);
+
+        // sort them according to how well matched they are
+        return sortedList.sort((a, b) => { return b.matchPercent - a.matchPercent; });
     },
+
+    getMatchPercent(user1, user2) {
+        return getMatchPercent(user1, user2);
+    },
+
+    user: (name) => { return friends[name]; },
+
+    all: () => {return friends; },
 };
 
 function randomHexNumber(length) {
@@ -105,5 +146,28 @@ function randomHexNumber(length) {
     return returnVal;
 }    
 
+function getMatchPercent(user1, user2) {
+    var answersInCommon = 0;
+    return friends[user1].answersData ?
+        Object.keys(friends[user1].answersData).reduce((sum, key) => {
+            // add up all the answers they have in common with this user
+            if (friends[user1].answersData[key] && friends[user2].answersData[key])
+                answersInCommon++;
+            // add one if they have the same answer, none if not
+            return friends[user1].answersData[key] == friends[user2].answersData[key]
+                ? sum + 1 : sum;
+        }, 0)
+        // divided by the number of questions they have both answered, to give a percentage
+        * 100 / answersInCommon
+        // or, if there is no answersData for this person...
+        : 0;
+}
 
- 
+function authorize(username, authtoken) {
+    console.log("authorizing user " + username + " with token : " + authtoken);
+    // just check if the auth token matches
+    if (friends[username].authtoken == authtoken) return true;
+    console.log("failed.");
+    return false;
+}
+
