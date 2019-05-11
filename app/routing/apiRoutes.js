@@ -118,6 +118,8 @@ module.exports = function apiRoutes() {
         }
         // if we are out of users, go back to zero again
         if (req.query.index >= matches.length) req.query.index = 0;
+        // or if we're below zero, go back to the end
+        if (req.query.index < 0) req.query.index = matches.length - 1;
         
         // send them to the 'match' page
         res.redirect("/html/match.html" +

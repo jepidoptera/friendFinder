@@ -11,6 +11,7 @@
 <body>
     <div id="navbar">
         <button class="navbutton" id="msgButton">Message</button>
+        <button class="navbutton" id="backButton">Back</button>
         <button class="navbutton" id="moreButton">Next</button>
         <button class="navbutton" id="homeButton">Home</button>
     </div>
@@ -24,17 +25,17 @@
         var url = new URL(window.location.href);
         var username = url.searchParams.get("username");
         var authtoken = url.searchParams.get("authtoken");
-        var match = url.searchParams.get("match");
+        var matchname = url.searchParams.get("match");
         var index = url.searchParams.get("index");
         // get the match percentage and then fill in the title
-        $.get("/api/matchstatic/?user1=" + username + "&user2=" + match).then((res) => {
+        $.get("/api/matchstatic/?user1=" + username + "&user2=" + matchname).then((res) => {
             console.log(res);
-            $("#matchTitle").text(match + ": " + res);
+            $("#matchTitle").text(matchname + ": " + res);
         });
         // request more information about the matched user
-        $.get("/api/user/" + match).then((res) => {
+        $.get("/api/user/" + matchname).then((res) => {
             // should come back with detailed info about this match
-            match = res;
+            var match = res;
             // show profile pic, if available
             $("#profilepic").attr("src", match.imgURL);
             // show info
@@ -58,11 +59,17 @@
             "&authtoken=" + authtoken +
             "&index=" + (parseInt(index) + 1);
         });
+        $("#backButton").on('click', () => {
+            window.location.href = "/api/match" +
+                "?username=" + username +
+                "&authtoken=" + authtoken +
+                "&index=" + (parseInt(index) - 1);
+        });
         $("#msgButton").on('click', () => {
             window.location.href = "/message" + 
             "?username=" + username + 
             "&authtoken=" + authtoken + 
-            "&match=" + match;
+            "&match=" + matchname;
         });
 </script>
 </html>
