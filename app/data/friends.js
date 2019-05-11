@@ -46,12 +46,15 @@ module.exports = {
                 var user = snap.val();
                 // update value
                 friends[user.username] = user;
+                console.log("new info on user: " + user.username);
             });
         });        
     },
 
     uploadSurveyData: (username, authtoken, question, answer) => {
+        // upload the answer to this question
         if (authorize(username, authtoken)) {
+            console.log("new answer data");
             firebase.database().ref(username + "/answersData/" + question).set(answer);
         }
 
@@ -89,6 +92,29 @@ module.exports = {
         return true;
     },
 
+    editUser: (username, authtoken, password, oldPassword, confirmPassword, gender, age, bio, location, imgURL) => {
+        if (!authorize(username, authtoken)) {
+            return "!error: bad auth data.";
+        }
+        if (password) {
+            if (md5(oldPassword) != friends[username].password) {
+                return "!current password is incorrect.";
+            }
+            if (password !== confirmPassword) {
+                return "!passwords do not match.";
+            }
+            // update password
+            firebase.database().ref(username + "/password").set(md5(password));
+        }
+        // set new user info
+        firebase.database().ref(username + "/gender").set(gender);
+        firebase.database().ref(username + "/age").set(age);
+        firebase.database().ref(username + "/location").set(location);
+        firebase.database().ref(username + "/imgURL").set(imgURL);
+        firebase.database().ref(username + "/bio").set(bio);
+        return "success";
+    },
+
     login: (username, password) => {
         // find the user
         thisUser = friends[username];
@@ -108,7 +134,7 @@ module.exports = {
     getMatches(username, authtoken) {
         // make sure they're properly logged in
         if (!authorize(username, authtoken)) {
-            return "!error: auth token invalid.";
+            return "!error: bad auth data.";
         }
         //
         var sortedList = [];
@@ -116,16 +142,19 @@ module.exports = {
             var friend = friends[key];
             if (friend.username != username) {
                 // calculate a match percentage for each possible "friend"
-                sortedList[i] = friend;
+                // store only username and match percent - the rest can be looked up as needed
+                sortedList[i] = { username: friend.username };
                 sortedList[i].matchPercent = getMatchPercent(friend.username, username);
             }
         });
 
-        // upload these to firebase for later
-        firebase.database.ref(username + "/matches").set(sortedList);
-
         // sort them according to how well matched they are
-        return sortedList.sort((a, b) => { return b.matchPercent - a.matchPercent; });
+        sortedList = sortedList.sort((a, b) => { return b.matchPercent - a.matchPercent; });
+
+        // upload these to firebase for later
+        firebase.database().ref(username + "/matches").set(sortedList);
+
+        return sortedList;
     },
 
     getMatchPercent(user1, user2) {
@@ -150,6 +179,8 @@ function getMatchPercent(user1, user2) {
     var answersInCommon = 0;
     return friends[user1].answersData ?
         Object.keys(friends[user1].answersData).reduce((sum, key) => {
+            // no match possible without answering some questions
+            if (!friends[user2].answersData) return 0;
             // add up all the answers they have in common with this user
             if (friends[user1].answersData[key] && friends[user2].answersData[key])
                 answersInCommon++;
@@ -158,7 +189,7 @@ function getMatchPercent(user1, user2) {
                 ? sum + 1 : sum;
         }, 0)
         // divided by the number of questions they have both answered, to give a percentage
-        * 100 / answersInCommon
+        * 100 / (answersInCommon ? answersInCommon : 1)
         // or, if there is no answersData for this person...
         : 0;
 }
@@ -166,8 +197,15 @@ function getMatchPercent(user1, user2) {
 function authorize(username, authtoken) {
     console.log("authorizing user " + username + " with token : " + authtoken);
     // just check if the auth token matches
-    if (friends[username].authtoken == authtoken) return true;
-    console.log("failed.");
-    return false;
+    if (!friends[username]) {
+        console.log("nonexistent user.");
+        return false;
+    }
+    if (friends[username].authtoken !== authtoken) {
+        console.log("bad auth token.");
+        return false;
+    }
+    // passed checks
+    return true;
 }
 

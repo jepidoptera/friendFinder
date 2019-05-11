@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>FriendFinder - Register</title>
+    <script src="../js/msgRelay.js"></script>
+    <!-- <script src="../js/saveinput.js"></script> -->
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+    <form action="/api/edit" method="post">
+        <h3>Editing : <br></h3>
+        username: <input type="text" class="form" name="username" readonly><br>
+        existing password (needed if you are changing your password): <br>
+        <input type="password" class="form" name="oldPassword"><br>
+        password: <input type="password" class="form" name="password"><br>
+        confirm password: <input type="password" class="form" name="confirmPassword"><br>
+        location: <input type="text" class="form" name="location"><br>
+        image url: <input type="text" class="form" name="imgURL"><br>
+        gender: <select class="form" name="gender">
+            <option value="male">male</option>
+            <option value="female">female</option>
+            <option value="other">other</option>
+        </select><br>
+        age: <input type="number" class="form" name="age"><br>
+        bio (a bit of information about yourself): <br>
+        <textarea class="form" name="bio" rows="5" cols="80"></textarea><br>
+        <input type="hidden" name="authtoken" value="">
+        <button class="navbutton" id="cancelButton">cancel</button>
+        <input class="navbutton" type="submit">
+    </form>
+    <p id="errorMessage" style='color:red'></p>
+</body>
+
+<script>
+    // msgRelay will pass its message here by auto-callback
+    messageHandler = (message) => {
+        message = message.toLocaleLowerCase();
+        // this service is only available in minneapolis.
+        if (message.includes("minneapolis")) {
+            $("input[name='location']")
+                .val("minneapolis")
+                .css({ "background-color": "blue", "color": "white" });
+            // change local storage so saveinput doesn't change it back
+            // this works as long as saveInput is included after msgRelay
+            localStorage.setItem("location", "minneapolis")
+        }
+        // clear incorrect password fields
+        if (message.includes("password")) {
+            if (message.includes("match")) {
+                // confirmPassword doesn't match
+                localStorage.setItem("confirmPassword", "");
+            }
+            else {
+                // old password must be wrong, clear that field
+                localStorage.setItem("oldPassword", "");
+            }
+        }
+    }
+    // get auth info from url parameters
+    var url = new URL(window.location.href);
+    var username = url.searchParams.get("username");
+    var authtoken = url.searchParams.get("authtoken");
+
+    console.log(authtoken);
+
+    // show username (not editable)
+    $("input[name='username']").val(username);
+    // input authtoken (not visible)
+    $("input[name='authtoken']").val(authtoken);
+
+    // get existing values for this user and fill them in
+    // get info on current user
+    $.get("/api/user/" + username).then (res => {
+        thisUser = res;
+        // console.log(JSON.stringify(thisUser));
+        // fill in data to input fieldas
+        $("textarea[name='bio']").val(thisUser.bio);
+        $("input[name='gender'] option[value='" + thisUser.gender + "']").prop('selected', true).change();
+        $("input[name='age']").val(thisUser.age);
+        $("input[name='location']").val(thisUser.location);
+        $("input[name='imgURL']").val(thisUser.imgURL);
+    });
+
+    // make the buttons work
+    $("#cancelButton").on('click', () => {
+        window.location.href = "/welcome" +
+            "?username=" + username +
+            "&authtoken=" + authtoken;
+    });
+</script>
+
+</html>

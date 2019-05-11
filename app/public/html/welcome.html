@@ -4,16 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Welcome to FriendFinder!</title>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
 <body>
+    <div id="navbar">
+        <button class="navbutton" id="surveyButton">answer questions</button>
+        <button class="navbutton" id="browse">browse other users</button>
+        <button class="navbutton" id="edit">edit your profile</button>
+        <button class="navbutton" id="logout" onclick="window.location.href='/'">log out</button>
+    </div>
     <h1 id="title">Welcome!</h1>
-    <img id="profilepic" src="" alt="">
     <p>If you're new to FriendFinder, we recommend filling out our survey to help you find a match!</p>
-    <button id="surveyButton">answer questions</button>
-    <button onclick="window.location.href='/friends'">browse other users</button>
+    <img id="profilepic" width="300px" src="" alt="">
 </body>
 </html>
 
@@ -31,4 +36,14 @@
     $("#surveyButton").on("click", () => {
         window.location.href='/survey-basic?username=' + username + "&authtoken=" + authtoken;
     })
+    $("#browse").on("click", () => {
+        window.location.href='/api/match' + 
+        '?username=' + username + 
+        '&authtoken=' + authtoken;     
+    });
+    $("#edit").on("click", () => {
+        window.location.href = '/edit' +
+            '?username=' + username +
+            '&authtoken=' + authtoken;
+    });
 </script>

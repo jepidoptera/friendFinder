@@ -61,17 +61,70 @@ module.exports = function apiRoutes() {
         res.json(friends.user(req.params.username));
     });
 
+    app.post("/api/edit", function (req, res) {
+        // get the user object
+        console.log(req.body.authtoken);
+        var thisUser = friends.user(req.body.username);
+        var message = friends.editUser(
+            req.body.username || thisUser.username,
+            req.body.authtoken,
+            req.body.password,
+            req.body.oldPassword,
+            req.body.confirmPassword,
+            req.body.gender || thisUser.gender,
+            req.body.age || thisUser.age,
+            req.body.bio || thisUser.bio,
+            req.body.location || thisUser.location,
+            req.body.imgURL || thisUser.imgURL
+        );
+        if (message[0] == "!") {
+            // fail message
+            console.log(message);
+            message = message.slice(1);  // -"!"
+            // redirect to register page and try again
+            // the query parameter will be displayed as an error message
+            res.redirect("/edit" +
+                "?username=" + req.body.username +
+                "&authtoken=" + req.body.authtoken +
+                "&message=" + req.body.message
+            );
+        }
+        else {
+            // send to welcome page
+            console.log("edited.");
+            res.redirect("/welcome" +
+                "?username=" + req.body.username +
+                "&authtoken=" + req.body.authtoken
+            );
+        }
+        console.log("success? " + message);
+    });
+
     app.get("/api/match", function (req, res) {
         // get all previous survey results, see who matches most closely
         // var allFriends = friends.all();
         // Object.keys(allFriends).forEach(key => {
         //     console.log(allFriends[key].username);
         // });
-        var matches = friends.getMatches(req.query.username, req.query.authtoken);
-        res.redirect("/match.html" +
+        var matches;
+        if (!req.query.index) {
+            // compile best matches from the database
+            matches = friends.getMatches(req.query.username, req.query.authtoken);
+            // give them the top match
+            req.query.index = 0;
+        }
+        else {
+            matches = friends.user(req.query.username).matches;
+        }
+        // if we are out of users, go back to zero again
+        if (req.query.index >= matches.length) req.query.index = 0;
+        
+        // send them to the 'match' page
+        res.redirect("/html/match.html" +
             "?username=" + req.query.username +
-            "&authtoken=" + req.queryf.authtoken +
-            "&match=" + matches[0].username);
+            "&authtoken=" + req.query.authtoken +
+            "&match=" + matches[req.query.index].username +
+            "&index=" + req.query.index);
         // res.send("You don't match with anyone.  You will always be lonely.");
     });
 

@@ -12,3 +12,16 @@
     float: left
 }
 
+#navbar {
+    top: 0;
+    width: 100%;
+    border: 1px solid black;
+    margin: 0
+}
+
+.navbutton {
+    font-size: 16pt;
+    border-radius: 3px;
+    margin: 10px;
+}
+

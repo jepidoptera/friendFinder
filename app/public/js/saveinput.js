@@ -1,5 +1,5 @@
 // jshint esversion: 6
-// save the input for all input fields, 
+// save the input for all input fields with class 'form', 
 // so if login/register/whatever attempt is rejected, and the page reloads
 // we won't have to re-enter everything
 window.addEventListener('load', function() {

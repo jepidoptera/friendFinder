@@ -4,14 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>FriendFinder - Survey</title>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-    <script src="md5.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/md5.js"></script>
 </head>
+
+<body>
+    <div id="navbar">
+        <button class="navbutton" id="moreButton">home</button>
+        <button class="navbutton" id="homeButton" onclick="window.location.href='/'">log out</button>
+    </div>
+    <div id="questionFrame"></div>
+</body>
+
 <script>
     var url = new URL(window.location.href);
     var username = url.searchParams.get("username");
     var authtoken = url.searchParams.get("authtoken");
+
+    // home button
+    $("#homeButton").on('click', () => {
+        window.location.href = "/welcome" +
+            "?username=" + username +
+            "&authtoken=" + authtoken;
+    });
+
     // user object for current logged-in user
     var thisUser = {};
 
@@ -48,14 +66,14 @@
             question: "Do you like parties?",
             answers: ["Every night, baby", "When I'm in the mood", "Not really my thing", "I will intentionally contract a virulent disease to get out of it, if necessary"]
         },
-        // {
-        //     question: "Do you like to travel?",
-        //     answers: ["Yes, I want to see the world", "Sometimes, but it's not a big priority", "I barely like to leave my house"]
-        // },
-        // {
-        //     question: "Do you like to travel?",
-        //     answers: ["Yes, I want to see the world", "Sometimes, but it's not a big priority", "I barely like to leave my house"]
-        // },
+        {
+            question: "Which of these qualities is most important to you?",
+            answers: ["Generousity", "Humor", "Competence"]
+        },
+        {
+            question: "Which superpower do you prefer?",
+            answers: ["Flight", "Invisibility", "Telepathy"]
+        },
     ]
     $(document).ready(() => {
         var currentQuestion = -1;
@@ -95,7 +113,12 @@
             currentQuestion += 1;
             // redirect if we've finished all the questions
             if (currentQuestion >= questionLabels.length) {
-                location.href = "/api/match?username=" + username + "&authtoken=" + authtoken;
+                // let them know they've done all the questions
+                $("#questionFrame").empty().html("You've done all the questions.  Redirecting...")
+                setTimeout(() => {
+                    location.href = "/api/match?username=" + username + "&authtoken=" + authtoken;
+                }, 3000);
+                return;
             }
             // skip this question if the user has already answered it
             if (thisUser.answersData[md5(questions[currentQuestion].question)]) {
@@ -112,7 +135,4 @@
         }
     })
 </script>
-<body>
-    <div id="questionFrame"></div>
-</body>
 </html>

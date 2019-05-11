@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Your Matches</title>
+    <link rel="stylesheet" href="../css/style.css">
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
         <button class="navbutton" id="homeButton">Home</button>
     </div>
     <h1 id="matchTitle"></h1>
-    <img id="profilepic" src="" alt="" width="300px" height="300px">
+    <img id="profilepic" src="" alt="" height="300px">
     <div id="about">
         <!-- info about this user -->
     </div>
@@ -25,6 +25,7 @@
         var username = url.searchParams.get("username");
         var authtoken = url.searchParams.get("authtoken");
         var match = url.searchParams.get("match");
+        var index = url.searchParams.get("index");
         // get the match percentage and then fill in the title
         $.get("/api/matchstatic/?user1=" + username + "&user2=" + match).then((res) => {
             console.log(res);
@@ -52,9 +53,10 @@
             "&authtoken=" + authtoken;
         });
         $("#moreButton").on('click', () => {
-            window.location.href = "/browse" +
+            window.location.href = "/api/match" +
             "?username=" + username +
-            "&authtoken=" + authtoken;
+            "&authtoken=" + authtoken +
+            "&index=" + (parseInt(index) + 1);
         });
         $("#msgButton").on('click', () => {
             window.location.href = "/message" + 
